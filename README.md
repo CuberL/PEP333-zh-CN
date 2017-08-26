@@ -40,18 +40,18 @@
 * [参考文献](#refrence)
 * [版权声明](#copyright)
 
-<a href="preface"/>
+<a name="preface"/>
 
 ### 序言
 
 注意：关于本规范的后续版本，请参照 [PEP 3333](https://www.python.org/dev/peps/pep-3333)，PEP 3333是支持Python 3.x 的新版本，同时还包含了一些社区勘误，补充，更正的相关说明信息。
 
-<a href="abstract"/>
+<a name="abstract"/>
 
 ### 摘要
 这份规范规定了一种在web服务器与web应用程序/框架之间推荐的标准接口，以确保web应用程序在不同的web服务器之间具有可移植性。
 
-<a href="goal"/>
+<a name="goal"/>
 
 ### 基本原理及目标
 
@@ -81,7 +81,7 @@ Python目前拥有大量的web框架，比如 Zope，Quixote，Webware， SkunkW
  
 最后，需要指出的是，此版本的WSGI对于一个应用程序具体该以何种方式部署在web服务器或者服务器网关上并没有做具体说明。就现在来看，这个是需要由服务器或网关来负责定义怎么实现的。等到以后，等有了足够多的服务器/网关通过实现了WSGI并积累了多样化的部署需求方面的领域经验，那么到时候也许会产生另一份PEP来描述WSGI服务器和应用框架的部署标准。
 
-<a href="overview"/>
+<a name="overview"/>
 
 ### 规范概述
 
@@ -91,7 +91,7 @@ WSGI接口可以分为两端：服务器/网关端和应用程序/Web框架端�
  
 在这份规范说明书中，我们将使用的术语`"callable`(可调用者)"，它的意思是"**一个函数，方法，类，或者拥有 __call__ 方法的一个对象实例**"，这取决于服务器，网关，或者应用程序根据需要而选择的合适的实现技术。相反，服务器，网关，或者请求一个可调用者（callable）的应用程序必须不依赖可调用者（callable）的具体提供方式。记住，可调用者（callable）只是被调用，不会自省（introspect）。[**译者注：introspect，自省，Python的强项之一，指的是代码可以在内存中象处理对象一样查找其它的模块和函数。**]
 
-<a href="application"/>
+<a name="application"/>
 
 #### 应用程序/框架 端
 
@@ -127,7 +127,7 @@ class AppClass:
         yield "Hello world!\n"
 ```
 
-<a href="server"/> 
+<a name="server"/> 
 
 #### 服务器/网关 端
 
@@ -195,7 +195,7 @@ def run_with_cgi(application):
             result.close()
 ```
 
-<a href="middleware"/>
+<a name="middleware"/>
 
 #### 中间件：可扮演两端角色的组件
 
@@ -279,7 +279,7 @@ from foo_app import foo_app
 run_with_cgi(Latinator(foo_app))
 ```
 
-<a href="detail"/>
+<a name="detail"/>
 
 ### 规格的详细说明
 
@@ -307,7 +307,7 @@ run_with_cgi(Latinator(foo_app))
 
 最后要说的是，服务器和网关不能使用应用程序返回的可迭代者（iterable）的任何其他属性，除非是针对服务器或网关的特定类型的实例，比如`wsgi.file_wrapper`返回的“file wrapper”（请阅读 [可选的平台相关的文件处理](#optional) 章节)。通常情况下，只有在这里指定的属性，或者通过 [PEP 234 iteration APIs](https://www.python.org/dev/peps/pep-0234/) 访问的属性才是可以接受的。
 
-<a href="environ"/>
+<a name="environ"/>
 
 #### `environ`变量
 
@@ -371,7 +371,7 @@ __HTTP_  变量组__
 最后想说的是，这个`environ`字典有可能会包含那些服务器定义的变量。这些变量应该用小写，数字，点号及下划线来命名，并且必须定义一个该服务器/网关专有的前缀开头。举个例子，`mod_python`在定义变量的时候，就会使用类似`mod_python.some_variable`这样的名字。
 
 
-<a href="input_error"/>
+<a name="input_error"/>
 
 ##### 输入和错误流
 
@@ -396,7 +396,7 @@ __HTTP_  变量组__
  
 所有遵循此规范的服务器都必须支持上表中所列出的每一个方法。所有遵循此规范的应用程序都不能使用除上表之外的其他方法或属性。特别需要指出的是，应用程序千万不要试图去关闭这些流，就算它们自己有对`close()`方法做处理也不行。
 
-<a href="start_response"/>
+<a name="start_response"/>
 
 #### 可调用者`start_response()`
 
@@ -440,7 +440,7 @@ def start_response(status, response_headers, exc_info=None):
              exc_info = None    # 避免循环引用。
 ```
 
-<a href="content_length"/>
+<a name="content_length"/>
 
 #### 处理Content-Length头信息
 
@@ -452,7 +452,7 @@ def start_response(status, response_headers, exc_info=None):
  
 （注意：应用程序和中间件的输出一定不能使用任何类型的传输编码（Transfer-Encoding）技术，比如chunking 或者 gzipping 这些；因为在“逐跳路由（hop-by-hop）”操作中，这些编码都属于现实服务器/网关的职权范围。详细信息可以参见下文的 [HTTP的其他特性](#HTTP_other) 章节。）
 
-<a href="buffer"/>
+<a name="buffer"/>
 
 #### 缓冲和流
 
@@ -472,7 +472,7 @@ WSGI服务器/网关和中间件不允许延迟传送任何块；它们要么完
 
 通过提供这样的保证措施，WSGI 就能允许应用程序保证在它们输出数据的过程中在任意点上都不会陷入停滞。这对于确保诸如多部分（multipart）“服务器推送（server push）”流的正常工作是至关重要的，因为在这种情况下多块分界线（multipart boundaries）之间的数据应当被完整地传送至客户端。
 
-<a href="middle_block"/>
+<a name="middle_block"/>
 
 ##### 中间件处理块边界
 
@@ -484,7 +484,7 @@ WSGI服务器/网关和中间件不允许延迟传送任何块；它们要么完
 
 同时也需要注意的是，这样的要求也意味着一旦处于下层的应用程序返回了一个可迭代者（iterable），中间件就必须尽快地返回一个（iterable）。另外，中间件也不被允许利用`write()` 可调用者（callable）来传输由下层应用程序生成的数据。中间件仅可以使用它父级服务器的`write()` 可调用者（callable）来传送由下层应用程序利用中间件提供的`write()` 可调用者（callable）发送来的数据。
 
-<a href="write"/>
+<a name="write"/>
 
 ##### 可调用的`write()`函数 
 
@@ -500,7 +500,7 @@ WSGI服务器/网关和中间件不允许延迟传送任何块；它们要么完
 
 一个应用程序必须返回一个可迭代者对象，即使它使用`write()`来生成全部或部分响应体。返回的可迭代者可以是空的（例如生成一个空字符串），但是，假如它不生成空字符串，那么它的输出就就必须被服务器或者网关正常处理（比如说，它必须立即被发送或者是立即加入到队列当中）。应用程序不能在它们返回的可迭代者内调用`write()`。这样的话，任意一个由可迭代者生成的字符串均会在所有传递给`write()`的字符串都被传送至客户端之后被传送。
 
-<a href="unicode"/>
+<a name="unicode"/>
 
 #### Unicode问题
 
@@ -512,7 +512,7 @@ HTTP本身并不对Unicode提供直接支持，同样，我们这份接口也不
 
 再次声明，本规范中提到的所有的字符串都必须是 str 类型或 StringType 类型，不能是 unicode 或 UnicodeType 类型。并且，针对本规范中所提到的“字符串”这个词，就算是一些平台允许 str/StringType 对象超过 8 bits/字符，也仅仅是该“字符串”的低位的 8 bits hui 被用到。
 
-<a href="error_handle"/>
+<a name="error_handle"/>
 
 #### 错误处理
 
@@ -543,7 +543,7 @@ except:
 1. 每一次当开始一个错误响应的时候，都提供`exc_info`。  
 2. 当`exc_info`已经提供了的情况下，不要去捕获由`start_response`产生的异常。 
 
-<a href="HTTP1.1"/>
+<a name="HTTP1.1"/>
 
 #### HTTP 1.1 Expect/Continue 机制
 
@@ -555,7 +555,7 @@ except:
 
 注意，以上这些行为的限制不适用于HTTP 1.0请求，也不适用于那些往应用程序对象发送的请求。更多关于HTTP 1.1 Except/Continue的信息，请参阅 [RFC 2616](http://www.faqs.org/rfcs/rfc2616.html) 的8.2.3章节和10.1.1章节。
 
-<a href="HTTP_other"/>
+<a name="HTTP_other"/>
 
 #### HTTP的其他特性
 
@@ -569,17 +569,17 @@ except:
  
 注意，这些对应用程序的限制不是说要求每一个应用程序都重新实现一次所有的HTTP特性；中间件可以实现许多HTTP特性的全部或者一部分，这样便可以让服务器和应用程序作者从一遍又一遍实现这些特性的痛苦中解放出来。 
 
-<a href="thread"/> 
+<a name="thread"/> 
 
 #### 线程支持
 
 除非本身不支持，否则支不支持线程也是取决于服务器自己的。服务器虽然可以同时并行处理多个请求，但也应当提供额外的选择让应用程序可以以单线程的方式运行，这样一来 ，一些不是线程安全的应用程序或框架就可以依旧在这些服务器上运行。
 
-<a href="implement"/>
+<a name="implement"/>
 
 ### 具体实现/应用程序
 
-<a href="server_api"/>
+<a name="server_api"/>
 
 #### 服务器扩展API
 
@@ -597,7 +597,7 @@ except:
  
 服务器/网关和中间件的开发者们遵守这些“安全扩展”规则是非常重要的，否则以后就可能出现中间件的开发者们为了确保应用程序使用他们扩展的中间件时不被绕过， 而不得不从`environ`中删除一些或者全部的扩展API这样的事情。
 
-<a href="config"/>
+<a name="config"/>
 
 #### 应用程序配置
 
@@ -617,7 +617,7 @@ def new_app(environ, start_response):
 ```
 但是，大多数现有的应用程序和框架很大可能只需用到`environ`里面的唯一一个配置值，用来指示它们的应用程序或框架特有的配置文件位置。（当然，应用程序应当缓存这些配置，以避免每次调用都重复读取。）
 
-<a href="URL"/>
+<a name="URL"/>
 
 #### URL的构建
 
@@ -645,7 +645,7 @@ if environ.get('QUERY_STRING'):
 ```
 注意，通过这种方式重建出来的URL可能跟客户端真实发过来的URI有些许差别。举个例子，服务器的重写规则有可能会对客户端发来的最初请求的URL做修改，以便让它看起来更规范。
 
-<a href="Python2.2"/>
+<a name="Python2.2"/>
 
 #### 对 Python2.2之前的版本的支持
 
@@ -664,7 +664,7 @@ if environ.get('QUERY_STRING'):
 
 （另外，为了支持Python2.2之前的版本，毫无疑问，任何服务器，网关，应用程序，或者中间件必须只能使用该版本有的语言特性，比如用1和0，而不是True和False，诸如此类。)
 
-<a href="optional"/>
+<a name="optional"/>
 
 #### 可选的平台相关的文件处理
 
@@ -723,7 +723,7 @@ finally:
         result.close()
 ```
 
-<a href="QA"/>
+<a name="QA"/>
 
 ### QA问答
 
@@ -771,7 +771,7 @@ WSGI中这些所有特性的实现选择都是为了从另外一个特性中解�
  
 我们鼓励那些希望在直接的Web应用程序编程（相对于web框架开发）中有更漂亮的（或是改进的）WSGI接口的人，鼓励他们去开发APIs或者框架来包装WSGI，使WSGI对那些应用程序开发者们更加便利。这样的话，WSGI就不仅可以在底层维持对服务器或中间件的便利性，同时对应用程序开发者来说又不会显得太“丑陋”。
 
-<a href="in_discussion"/>
+<a name="in_discussion"/>
 
 ### 尚在讨论中的提议
 
@@ -781,7 +781,7 @@ WSGI中这些所有特性的实现选择都是为了从另外一个特性中解�
 - 我们正在讨论可选的扩展，它们将用来暂停一个应用程序输出的迭代，直到输入可用或者发生一个回调事件。
 - 添加一个章节，关于同步 vs 异步应用程序和服务器，相关的线程模型，以及这方面的问题/设计目标。
 
-<a href="thanks"/>
+<a name="thanks"/>
 
 ### 鸣谢
 
@@ -793,7 +793,7 @@ WSGI中这些所有特性的实现选择都是为了从另外一个特性中解�
 - Alan Kennedy, 一个有勇气去尝试实现`WSGI-on-Jython`（在我的这份规范定稿之前）的人，他帮助我形成了 [对Python2.2之前的版本的支持](#Python2.2) 这一章节，以及可选的`wsgi.file_wrapper`套件。  
 - Mark Nottingham，是他为这份规范的HTTP RFC 发行规范做了大量的后期校对工作，特别针对HTTP/1.1特性，没有他的指出，我甚至不知道有这东西存在。  
 
-<a href="refrence"/>
+<a name="refrence"/>
 
 ### 参考文献
 
@@ -803,7 +803,7 @@ WSGI中这些所有特性的实现选择都是为了从另外一个特性中解�
 [4]	"End-to-end and Hop-by-hop Headers" -- HTTP/1.1, Section 13.5.1 ( http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.5.1 )  
 [5]	mod_ssl Reference, "Environment Variables" ( http://www.modssl.org/docs/2.8/ssl_reference.html#ToC25 )  
 
-<a href="copyright"/>
+<a name="copyright"/>
 
 ### 版权声明
 
